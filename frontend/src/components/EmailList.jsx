@@ -1,9 +1,16 @@
 /**
  * Email list component - renders emails from backend-shaped data.
- * Frontend does NOT extract domains - only renders what backend sends.
+ * - activeView: 'inbox' | 'starred' | 'pinned' | domain string
+ * - searchQuery: text to search in from, subject, snippet, body (case-insensitive)
  * TODO: Replace dummy data with GET /api/emails/inbox
  */
-function EmailList({ emailsData, selectedEmailId, onSelectEmail }) {
+function EmailList({
+  emailsData,
+  activeView,
+  searchQuery = "",
+  selectedEmailId,
+  onSelectEmail,
+}) {
   // Render emails exactly as structured by backend (domains -> emails)
   if (!emailsData?.domains || emailsData.domains.length === 0) {
     return (
@@ -15,13 +22,56 @@ function EmailList({ emailsData, selectedEmailId, onSelectEmail }) {
 
   // Flatten emails for display while preserving backend structure
   // Backend sends { domains: [{ domain, emails: [...] }] }
-  const allEmails = emailsData.domains.flatMap((d) =>
+  let emails = emailsData.domains.flatMap((d) =>
     d.emails.map((email) => ({ ...email, domain: d.domain }))
   );
 
+  // Step 1: Filter by active view (Inbox, Starred, Pinned, or Domain)
+  if (activeView === "starred") {
+    emails = emails.filter((e) => e.starred);
+  } else if (activeView === "pinned") {
+    emails = emails.filter((e) => e.pinned);
+  } else if (activeView && activeView !== "inbox") {
+    emails = emails.filter((e) => e.domain === activeView);
+  }
+
+  // Step 2: Filter by search query (searches in from, subject, snippet, body)
+  const query = searchQuery?.trim()?.toLowerCase();
+  if (query) {
+    emails = emails.filter((email) => {
+      const from = (email.from || "").toLowerCase();
+      const subject = (email.subject || "").toLowerCase();
+      const snippet = (email.snippet || "").toLowerCase();
+      const body = (email.body || "").toLowerCase();
+      return (
+        from.includes(query) ||
+        subject.includes(query) ||
+        snippet.includes(query) ||
+        body.includes(query)
+      );
+    });
+  }
+
+  if (emails.length === 0) {
+    const emptyMsg = query
+      ? `No emails match "${searchQuery}"`
+      : activeView === "starred"
+        ? "No starred emails"
+        : activeView === "pinned"
+          ? "No pinned emails"
+          : activeView && activeView !== "inbox"
+            ? `No emails from ${activeView}`
+            : "No emails to display";
+    return (
+      <div className="email-list-empty">
+        <p>{emptyMsg}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="email-list">
-      {allEmails.map((email) => (
+      {emails.map((email) => (
         <div
           key={email.id}
           className={`email-item ${selectedEmailId === email.id ? "selected" : ""} ${email.unread ? "unread" : ""}`}

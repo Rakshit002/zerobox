@@ -5,7 +5,7 @@
 function Login() {
   const handleGoogleSignIn = () => {
     // TODO: Backend Google OAuth route - redirect to backend auth endpoint
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = "http://localhost:3000/api/auth/google";
   };
 
   return (

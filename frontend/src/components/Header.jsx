@@ -1,35 +1,32 @@
 /**
  * Header with search and user profile.
- * TODO: Fetch user data from GET /api/auth/me
+ * - searchQuery: current search text (controlled by parent)
+ * - onSearchChange: called when user types in search box
+ * - user: logged-in user from GET /api/auth/me
  */
-function Header() {
-  // Dummy user data - replace with API response from GET /api/auth/me
-  const dummyUser = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
-  };
-
+function Header({ user, searchQuery = "", onSearchChange }) {
   return (
     <header className="header">
+      {/* Search box - filters emails by from, subject, snippet, body */}
       <div className="header-search">
         <input
           type="search"
           placeholder="Search emails..."
           className="search-input"
-          disabled
+          value={searchQuery}
+          onChange={(e) => onSearchChange?.(e.target.value)}
+          aria-label="Search emails"
         />
-        {/* TODO: Wire search to backend API when implemented */}
       </div>
       <div className="header-user">
         <img
-          src={dummyUser.avatar}
-          alt={dummyUser.name}
+          src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=User"}
+          alt={user?.name || "User"}
           className="user-avatar"
         />
         <div className="user-info">
-          <span className="user-name">{dummyUser.name}</span>
-          <span className="user-email">{dummyUser.email}</span>
+          <span className="user-name">{user?.name || "User"}</span>
+          <span className="user-email">{user?.email || ""}</span>
         </div>
       </div>
     </header>

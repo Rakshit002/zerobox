@@ -2,31 +2,48 @@ import { useNavigate } from "react-router-dom";
 
 /**
  * Sidebar navigation component.
- * TODO: Fetch domains from backend - currently using dummy data.
+ * activeView: 'inbox' | 'starred' | 'pinned' | domain string (e.g. 'google.com')
+ * domains: derived from backend data - TODO: GET /api/domains
  */
-function Sidebar() {
+function Sidebar({ activeView, onViewChange, domains = [] }) {
   const navigate = useNavigate();
-
-  // TODO: Replace with GET /api/domains - placeholder domain list
-  const domains = ["google.com", "github.com", "example.org"];
 
   const handleLogout = () => {
     // TODO: Call POST /api/auth/logout before navigating
     navigate("/login");
   };
 
+  const setActive = (view) => () => onViewChange?.(view);
+
+  const isActive = (view) => activeView === view;
+
   return (
     <aside className="sidebar">
       <nav className="sidebar-nav">
         <ul className="sidebar-menu">
           <li>
-            <button className="sidebar-item active">Inbox</button>
+            <button
+              className={`sidebar-item ${isActive("inbox") ? "active" : ""}`}
+              onClick={setActive("inbox")}
+            >
+              Inbox
+            </button>
           </li>
           <li>
-            <button className="sidebar-item">Starred</button>
+            <button
+              className={`sidebar-item ${isActive("starred") ? "active" : ""}`}
+              onClick={setActive("starred")}
+            >
+              Starred
+            </button>
           </li>
           <li>
-            <button className="sidebar-item">Pinned</button>
+            <button
+              className={`sidebar-item ${isActive("pinned") ? "active" : ""}`}
+              onClick={setActive("pinned")}
+            >
+              Pinned
+            </button>
           </li>
         </ul>
 
@@ -35,7 +52,12 @@ function Sidebar() {
           <ul className="sidebar-menu">
             {domains.map((domain) => (
               <li key={domain}>
-                <button className="sidebar-item domain-item">{domain}</button>
+                <button
+                  className={`sidebar-item domain-item ${isActive(domain) ? "active" : ""}`}
+                  onClick={setActive(domain)}
+                >
+                  {domain}
+                </button>
               </li>
             ))}
           </ul>
