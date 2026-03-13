@@ -12,7 +12,9 @@ const User=require("../models/usermodel")
 router.get(
   "/google",
   passport.authenticate("google", {
-    scope: ["profile", "email"],
+    scope: ["profile", "email"
+      ,"https://www.googleapis.com/auth/gmail.readonly"
+    ],
   })
 );
 
@@ -27,12 +29,12 @@ router.get(
     const token = jwt.sign(
       { id: req.user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "12hrs" }
+      { expiresIn: "10h" }
     );
     
 
     // Redirect to frontend dashboard
-    res.redirect(`http://localhost:5173/Dashboard?token=${token}`);
+    res.redirect(`http://localhost:5173/Inbox?token=${token}`);
 
    
   }

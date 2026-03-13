@@ -4,6 +4,7 @@ const passport = require("passport");
 const cors=require("cors");
 const connectDB = require("./config/mongoose-connection");
 const authRouter=require("./routes/auth")
+const emailRoutes = require("./routes/emailRoute");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cors({
 
 
 app.use("/api/auth", authRouter);
+app.use("/api/emails", emailRoutes);
 
 connectDB().then(() => {
   app.listen(process.env.PORT, () => {

@@ -32,9 +32,9 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
           <li>
             <button
               className={`sidebar-item ${isActive("starred") ? "active" : ""}`}
-              onClick={setActive("starred")}
+              onClick={setActive("starred") }
             >
-              Starred
+              ⭐ Starred
             </button>
           </li>
           <li>
@@ -42,7 +42,7 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
               className={`sidebar-item ${isActive("pinned") ? "active" : ""}`}
               onClick={setActive("pinned")}
             >
-              Pinned
+              📌Pinned
             </button>
           </li>
         </ul>
@@ -74,3 +74,28 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
 }
 
 export default Sidebar;
+
+
+// function Sidebar({ domains, setActiveView }) {
+
+//   return (
+//     <div className="sidebar">
+
+//       <div onClick={() => setActiveView("inbox")}>
+//         Inbox
+//       </div>
+
+//       {domains.map(domain => (
+//         <div
+//           key={domain}
+//           onClick={() => setActiveView(domain)}
+//         >
+//           {domain}
+//         </div>
+//       ))}
+
+//     </div>
+//   );
+// }
+
+// export default Sidebar;

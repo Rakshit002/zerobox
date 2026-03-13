@@ -35,15 +35,15 @@ function EmailPreview({ selectedEmail, onEmailUpdate }) {
       <div className="email-preview-header">
         <h2 className="email-preview-subject">{selectedEmail.subject}</h2>
         <div className="email-preview-actions">
-          {unread && (
-            <button
-              className="preview-btn"
-              onClick={handleMarkAsRead}
-              title="Mark as Read"
-            >
-              Mark as Read
-            </button>
-          )}
+          {/* {unread && (
+            // <button
+            //   className="preview-btn"
+            //   onClick={handleMarkAsRead}
+            //   title="Mark as Read"
+            // >
+            //   Mark as Read
+            // </button>
+          )} */}
           <button
             className={`preview-btn ${starred ? "active" : ""}`}
             onClick={handleStar}
@@ -64,7 +64,10 @@ function EmailPreview({ selectedEmail, onEmailUpdate }) {
         <span className="preview-from">From: {selectedEmail.from}</span>
         <span className="preview-date">{selectedEmail.date}</span>
       </div>
-      <div className="email-preview-body">{selectedEmail.body}</div>
+      <hr/>
+      <div className="email-body" dangerouslySetInnerHTML={{ __html: selectedEmail.body }}>
+
+    </div>
     </div>
   );
 }

@@ -19,7 +19,12 @@ passport.use(
             name: profile.displayName,
             email: profile.emails[0].value,
             avatar: profile.photos[0].value,
+            googleAccessToken:accessToken,
           });
+        }else {
+          // update token if user logs in again
+          user.googleAccessToken = accessToken;
+          await user.save();
         }
 
         done(null, user);
