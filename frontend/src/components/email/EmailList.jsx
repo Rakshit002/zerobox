@@ -102,21 +102,52 @@
 
 // export default EmailList;
 
-
-import { pinEmail, starEmail } from "../../api/EmailApi";
-
-function EmailList({ emailsData, onSelectEmail }) {
+import { pinEmail, starEmail ,unpinEmail, unstarEmail } from "../../api/EmailApi";
+import toast from "react-hot-toast";
+function EmailList({ emailsData, onSelectEmail, onEmailUpdate, loadingMore = false }) {
 
   const handlePin = async (email) => {
-    await pinEmail(email.id);
-    alert("Email pinned");
-    onEmailUpdate(email.id, { pinned: true });
+   try {
+
+    if (email.pinned) {
+
+      await unpinEmail(email.id);
+
+      onEmailUpdate(email.id, { pinned: false });
+         toast.success("Email unpinned succesfully");
+    } else {
+
+      await pinEmail(email.id);
+
+      onEmailUpdate(email.id, { pinned: true });
+       toast.success("Email pinned succesfully");
+    }
+
+  } catch (error) {
+    console.error("Pin toggle failed", error);
+  }
   };
 
   const handleStar = async (email) => {
-    await starEmail(email.id);
-    alert("Email starred");
-     onEmailUpdate(email.id, { pinned: true });
+    try {
+
+      if (email.starred) {
+
+        await unstarEmail(email.id);
+
+        onEmailUpdate(email.id, { starred: false });
+        toast.success("Email unstarred succesfully");
+      } else {
+
+        await starEmail(email.id);
+
+        onEmailUpdate(email.id, { starred: true });
+        toast.success("Email starred succesfully");
+      }
+
+    } catch (error) {
+      console.error("Star failed", error);
+    }
   };
 
   return (
@@ -136,12 +167,22 @@ function EmailList({ emailsData, onSelectEmail }) {
 
           <div className="email-actions">
 
-            <button onClick={() => handlePin(email.id)}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePin(email);
+              }}
+            >
               📌
             </button>
 
-            <button onClick={() => handleStar(email.id)}>
-              ⭐
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStar(email);
+              }}
+            >
+              {email.starred ? "⭐" : "☆"}
             </button>
 
           </div>
@@ -149,6 +190,14 @@ function EmailList({ emailsData, onSelectEmail }) {
         </div>
 
       ))}
+
+      {/* One-line status while the next inbox page is fetching (infinite scroll). */}
+      {loadingMore && (
+        <div className="email-list-loader" role="status" aria-live="polite">
+          <span className="email-list-loader-spinner" aria-hidden />
+          <p className="email-list-loader-text">emails are loading</p>
+        </div>
+      )}
 
     </div>
   );

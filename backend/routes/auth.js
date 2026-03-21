@@ -1,9 +1,9 @@
-const express = require("express");
-const passport = require("passport");
-const jwt = require("jsonwebtoken");
+import express from "express";
+import passport from "passport";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
-const User=require("../models/usermodel")
+import User from "../models/usermodel.js";
 
 /**
  * STEP 1: Start Google Login
@@ -29,7 +29,7 @@ router.get(
     const token = jwt.sign(
       { id: req.user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "10h" }
+      { expiresIn: "7d" }
     );
     
 
@@ -73,4 +73,4 @@ router.get(
 });
 
 
-module.exports = router;
+export default router;

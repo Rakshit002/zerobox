@@ -244,6 +244,41 @@ body {
   flex-direction: column;
 }
 
+.email-list-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  border-top: 1px solid #f1f5f9;
+  background: #fafafa;
+}
+
+.email-list-loader-text {
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+/* Simple buffer / spinner (no extra libraries). */
+.email-list-loader-spinner {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid #e2e8f0;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: email-list-loader-spin 0.65s linear infinite;
+}
+
+@keyframes email-list-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .email-item {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid #f1f5f9;
@@ -388,4 +423,48 @@ body {
   line-height: 1.6;
   color: #334155;
   white-space: pre-wrap;
+}
+
+/* ===== Email Intelligence Panel ===== */
+.email-analytics-panel {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.email-analytics-title {
+  font-size: 0.95rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.email-analytics-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.email-analytics-heading {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.email-analytics-card--clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.email-analytics-card--clickable:hover {
+  border-color: #6366f1;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.12);
+}
+
+.email-analytics-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #64748b;
 }

@@ -44,7 +44,7 @@ function EmailPreview({ selectedEmail, onEmailUpdate }) {
             //   Mark as Read
             // </button>
           )} */}
-          <button
+          {/* <button
             className={`preview-btn ${starred ? "active" : ""}`}
             onClick={handleStar}
             title={starred ? "Unstar" : "Star"}
@@ -57,7 +57,7 @@ function EmailPreview({ selectedEmail, onEmailUpdate }) {
             title={pinned ? "Unpin" : "Pin"}
           >
             📌 Pin
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="email-preview-meta">

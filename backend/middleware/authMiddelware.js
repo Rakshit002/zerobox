@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/usermodel");
+import jwt from "jsonwebtoken";
+import User from "../models/usermodel.js";
 
 const verifyJWT = async (req, res, next) => {
 
@@ -14,9 +14,11 @@ const verifyJWT = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.id);
-
+     const user= await User.findById(decoded.id)
+    
+      if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
     req.user = user;
 
     next();
@@ -28,4 +30,4 @@ const verifyJWT = async (req, res, next) => {
   }
 };
 
-module.exports = verifyJWT;
+export default verifyJWT;

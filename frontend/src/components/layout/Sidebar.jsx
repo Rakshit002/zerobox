@@ -5,7 +5,14 @@ import { useNavigate } from "react-router-dom";
  * activeView: 'inbox' | 'starred' | 'pinned' | domain string (e.g. 'google.com')
  * domains: derived from backend data - TODO: GET /api/domains
  */
-function Sidebar({ activeView, onViewChange, domains = [] }) {
+function Sidebar({ 
+   domains ,
+   domainStats,
+  inboxCount,
+  pinnedCount,
+  starredCount,
+  activeView,
+   onViewChange = [] }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -26,7 +33,7 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
               className={`sidebar-item ${isActive("inbox") ? "active" : ""}`}
               onClick={setActive("inbox")}
             >
-              Inbox
+              Inbox ({inboxCount})
             </button>
           </li>
           <li>
@@ -34,7 +41,7 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
               className={`sidebar-item ${isActive("starred") ? "active" : ""}`}
               onClick={setActive("starred") }
             >
-              ⭐ Starred
+              ⭐ Starred ({starredCount})
             </button>
           </li>
           <li>
@@ -42,7 +49,7 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
               className={`sidebar-item ${isActive("pinned") ? "active" : ""}`}
               onClick={setActive("pinned")}
             >
-              📌Pinned
+              📌Pinned ({pinnedCount})
             </button>
           </li>
         </ul>
@@ -56,7 +63,7 @@ function Sidebar({ activeView, onViewChange, domains = [] }) {
                   className={`sidebar-item domain-item ${isActive(domain) ? "active" : ""}`}
                   onClick={setActive(domain)}
                 >
-                  {domain}
+                  {domain} ({domainStats[domain]||0})
                 </button>
               </li>
             ))}

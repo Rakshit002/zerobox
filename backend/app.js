@@ -1,14 +1,14 @@
-require("dotenv").config();
-const express = require("express");
-const passport = require("passport");
-const cors=require("cors");
-const connectDB = require("./config/mongoose-connection");
-const authRouter=require("./routes/auth")
-const emailRoutes = require("./routes/emailRoute");
+import "dotenv/config";
+import express from "express";
+import passport from "passport";
+import cors from "cors";
+import connectDB from "./config/mongoose-connection.js";
+import authRouter from "./routes/auth.js";
+import emailRoutes from "./routes/emailRoute.js";
 
 const app = express();
 
-require("./config/passport");
+import "./config/passport.js";
 
 app.use(express.json());
 app.use(passport.initialize());

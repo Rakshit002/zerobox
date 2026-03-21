@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const pinnedEmailSchema = new mongoose.Schema({
+const starredEmailSchema = new mongoose.Schema({
 
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -14,4 +14,4 @@ const pinnedEmailSchema = new mongoose.Schema({
 
 });
 
-export default mongoose.model("PinnedEmail", pinnedEmailSchema);
+export default mongoose.model("StarredEmail", starredEmailSchema);
