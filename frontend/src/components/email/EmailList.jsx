@@ -102,9 +102,12 @@
 
 // export default EmailList;
 
-import { pinEmail, starEmail ,unpinEmail, unstarEmail } from "../../api/EmailApi";
+import { useNavigate } from "react-router-dom";
+import { pinEmail, starEmail, unpinEmail, unstarEmail } from "../../api/EmailApi";
 import toast from "react-hot-toast";
-function EmailList({ emailsData, selectedEmailId, onSelectEmail, onEmailUpdate, loadingMore = false }) {
+
+function EmailList({ emailsData, selectedEmailId, onEmailUpdate, loadingMore = false }) {
+  const navigate = useNavigate();
 
   const handlePin = async (email) => {
    try {
@@ -156,12 +159,12 @@ function EmailList({ emailsData, selectedEmailId, onSelectEmail, onEmailUpdate, 
         <div
           key={email.id}
           className={`email-item ${email.unread ? "unread" : ""} ${selectedEmailId === email.id ? "selected" : ""}`}
-          onClick={() => onSelectEmail(email)}
+          onClick={() => navigate(`/inbox/${email.id}`)}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
-              onSelectEmail(email);
+              navigate(`/inbox/${email.id}`);
             }
           }}
         >

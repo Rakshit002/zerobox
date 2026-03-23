@@ -6,7 +6,6 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import EmailList from "../components/email/EmailList";
-import EmailPreview from "../components/email/EmailPreview";
 import EmailAnalytics from "../components/email/EmailAnalytics";
 import useEmails from "../hooks/useEmails";
 import { useNavigate } from "react-router-dom";
@@ -15,10 +14,11 @@ import { useAuth } from "../context/AuthContext";
 
 
 /**
- * Dashboard page - main layout: Sidebar | Email List | Email Preview
+ * Dashboard page - main layout: Sidebar | Email List | Email Analytics
+ * Email details are now displayed in a separate route: /inbox/:id
  */
 function Inbox() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshAuth } = useAuth();
   const {
     importantEmail,
     fetchEmailAnalytics,
@@ -33,6 +33,7 @@ function Inbox() {
   const [starredEmails, setStarredEmails] = useState([]);
 
   const listPanelRef = useRef(null);
+  const navigate = useNavigate();
 
   /** Merge pin/star flags from DB into Gmail inbox rows (all loaded pages). */
   const emails = useMemo(() => {
@@ -54,46 +55,14 @@ function Inbox() {
 
 const pinnedCount = pinnedEmails.length;
 const starredCount = starredEmails.length;
-  const [selectedEmail, setSelectedEmail] = useState(null);
   const [activeView, setActiveView] = useState("inbox");
 
-
-  const handleSelectEmail = async (email) => {
-    try {
-      const data = await getEmailById(email.id);
-      setSelectedEmail(data.email);
-    } catch (error) {
-      console.error("Failed to load email preview:", error);
-    }
-  };
-
-  /** Open Important Email intelligence item in the preview panel (same as list selection). */
-  const handleImportantEmailClick = useCallback(async (important) => {
-    if (!important?.id) return;
-    try {
-      const data = await getEmailById(important.id);
-      setSelectedEmail(data.email);
-    } catch (error) {
-      console.error("Failed to load email preview:", error);
-    }
-  }, []);
-
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tokenFromUrl = params.get("token");
+    handleSearch(searchQuery);
+  }, [searchQuery, handleSearch]);
 
-    if (tokenFromUrl) {
-      localStorage.setItem("token", tokenFromUrl);
-      window.history.replaceState({}, document.title, "/inbox");
-    }
-  }, []);
-
-useEffect(() => {
-  handleSearch(searchQuery);
-}, [searchQuery, handleSearch]);
 // useEffect(()=>{
 //     const fetchPinnedEmails = async () => {
 //        try {
@@ -164,11 +133,6 @@ useEffect(() => {
     panel.addEventListener("scroll", onScroll);
     return () => panel.removeEventListener("scroll", onScroll);
   }, [inboxLoading, nextPageToken, loadInboxPage]);
-
- 
-
-  // Flatten to find selected email (may be in any domain)
-  const selectedEmailId = selectedEmail?.id ?? null;
 
   // Derive domains from backend data 
 const pinnedEmailIds = (pinnedEmails || []).map(p => p.emailId);
@@ -282,7 +246,7 @@ if (authLoading) {
           </div>
 
           <div style={{ display: "grid", gap: "16px", gridTemplateColumns: "repeat(12, 1fr)" }}>
-            <div style={{ gridColumn: "span 4" }}>
+            <div style={{ gridColumn: "span 6" }}>
               <div
                 ref={listPanelRef}
                 className="email-list-panel"
@@ -293,32 +257,16 @@ if (authLoading) {
                   background: "#ffffff",
                   boxShadow: "0 8px 20px rgba(15, 23, 42, 0.05)",
                 }}
-              >                <EmailList
+              >
+                <EmailList
                   emailsData={filteredEmails}
-                  selectedEmailId={selectedEmailId}
-                  onSelectEmail={handleSelectEmail}
                   onEmailUpdate={handleEmailUpdate}
                   loadingMore={inboxLoading && inboxEmailsRaw.length > 0}
                 />
               </div>
             </div>
 
-            <div style={{ gridColumn: "span 4" }}>
-              <div
-                className="email-preview-panel"
-                style={{
-                  overflowY: "auto",
-                  maxHeight: "calc(100vh - 240px)",
-                  borderRadius: "0.75rem",
-                  background: "#ffffff",
-                  boxShadow: "0 8px 20px rgba(15, 23, 42, 0.05)",
-                }}
-              >
-                <EmailPreview selectedEmail={selectedEmail} onEmailUpdate={handleEmailUpdate} />
-              </div>
-            </div>
-
-            <div style={{ gridColumn: "span 4" }}>
+            <div style={{ gridColumn: "span 6" }}>
               <div
                 className="email-analytics-wrapper"
                 style={{
@@ -333,7 +281,7 @@ if (authLoading) {
                   importantEmail={importantEmail}
                   topSender={topSender}
                   topDomain={topDomain}
-                  onImportantEmailClick={handleImportantEmailClick}
+                  onImportantEmailClick={(email) => navigate(`/inbox/${email.id}`)}
                 />
               </div>
             </div>

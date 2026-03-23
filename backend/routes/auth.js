@@ -34,7 +34,7 @@ router.get(
     
 
     // Redirect to frontend dashboard
-    res.redirect(`http://localhost:5173/Inbox?token=${token}`);
+    res.redirect(`http://localhost:5173/inbox?token=${token}`);
 
    
   }
