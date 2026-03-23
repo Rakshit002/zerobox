@@ -11,7 +11,7 @@ const extractDomain = (from) => {
  * Fetch inbox message list from Gmail with optional pageToken for pagination.
  * Returns same email objects as before plus nextPageToken for infinite scroll.
  */
-const fetchInboxEmails = async (accessToken, pageToken) => {
+const fetchInboxEmails = async (accessToken, pageToken, searchQuery) => {
 
   const auth = new google.auth.OAuth2();
 
@@ -32,6 +32,9 @@ const fetchInboxEmails = async (accessToken, pageToken) => {
   };
   if (pageToken) {
     listParams.pageToken = pageToken;
+  }
+  if (searchQuery) {
+    listParams.q = searchQuery;
   }
 
   const response = await gmail.users.messages.list(listParams);

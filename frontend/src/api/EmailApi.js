@@ -4,10 +4,11 @@ import api from "./axios";
  * Fetch inbox emails with optional Gmail pageToken for infinite scroll.
  * Response: { success, emails, nextPageToken }
  */
-export const fetchEmails = async (pageToken) => {
-  const res = await api.get("/emails/inbox", {
-    params: pageToken ? { pageToken } : {}
-  });
+export const fetchEmails = async (pageToken, search) => {
+  const params = {};
+  if (pageToken) params.pageToken = pageToken;
+  if (search) params.search = search;
+  const res = await api.get("/emails/inbox", { params });
   return res.data;
 };
 

@@ -11,19 +11,23 @@ import EmailAnalytics from "../components/email/EmailAnalytics";
 import useEmails from "../hooks/useEmails";
 import { useNavigate } from "react-router-dom";
 import { getEmailById, getPinnedEmails, getStarredEmails } from "../api/EmailApi";
+import { useAuth } from "../context/AuthContext";
 
 
 /**
  * Dashboard page - main layout: Sidebar | Email List | Email Preview
  */
 function Inbox() {
+  const { user, loading: authLoading } = useAuth();
   const {
     importantEmail,
     fetchEmailAnalytics,
     emails: inboxEmailsRaw,
     nextPageToken,
     loading: inboxLoading,
-    fetchEmails: loadInboxPage
+    fetchEmails: loadInboxPage,
+    searchTerm,
+    handleSearch
   } = useEmails();
   const [pinnedEmails, setPinnedEmails] = useState([]);
   const [starredEmails, setStarredEmails] = useState([]);
@@ -75,40 +79,21 @@ const starredCount = starredEmails.length;
   }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
-const[user,setUser]=useState(null)
-const navigate=useNavigate();
-//gettin user data after login;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("token");
+
+    if (tokenFromUrl) {
+      localStorage.setItem("token", tokenFromUrl);
+      window.history.replaceState({}, document.title, "/inbox");
+    }
+  }, []);
 
 useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const tokenFromUrl = params.get("token")
-
-  if (tokenFromUrl) {
-    localStorage.setItem("token", tokenFromUrl);
-    // optional: clean URL
-    window.history.replaceState({}, document.title, "/Inbox");
-  }
-}, []);
-
-useEffect(()=>{
-     const token = localStorage.getItem("token"); // Assuming 'authToken' is the key you use
-         console.log(token)
-    // If no token is found, redirect to login
-     if (!token) {
-    navigate("/login");
-    return;
-  }
-  api.get("/auth/me")
-  .then((res)=>{
-    console.log(res.data)
-    if(!res.data.loggedIn){
-      navigate("/login")
-    }else{
-      setUser(res.data.user);
-    }
-  })
-  .catch(()=>navigate("/login"))
-},[]);
+  handleSearch(searchQuery);
+}, [searchQuery, handleSearch]);
 // useEffect(()=>{
 //     const fetchPinnedEmails = async () => {
 //        try {
@@ -204,7 +189,9 @@ else if (activeView === "starred") {
   filteredEmails = starredEmailList;
 }
 
-else if (activeView !== "inbox") {
+else if (activeView === "analytics") {
+  filteredEmails = emails;
+} else if (activeView !== "inbox") {
   filteredEmails = emails.filter(
     email => email.domain === activeView
   );
@@ -250,60 +237,106 @@ else if (activeView !== "inbox") {
 
 }, []);
 const domainStats = emails.reduce((acc, email) => {
-
   if (!acc[email.domain]) {
     acc[email.domain] = 0;
   }
-
   acc[email.domain]++;
-
   return acc;
-
 }, {});
-  
-  if (!user) {
+
+const topSender = Object.entries(
+  emails.reduce((acc, email) => {
+    const sender = email.from || "Unknown";
+    acc[sender] = (acc[sender] || 0) + 1;
+    return acc;
+  }, {})
+).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+
+const topDomain = Object.entries(domainStats).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+
+if (authLoading) {
   return <p>Loading dashboard...</p>;
 }
 
   return (
-    <div className="dashboard">
+    <div className="dashboard" style={{ minHeight: "100vh", background: "#f3f4f6" }}>
       <Sidebar
-         domains={domains}
+        domains={domains}
         domainStats={domainStats}
         inboxCount={inboxCount}
-         pinnedCount={pinnedCount}
-         starredCount={starredCount}
+        pinnedCount={pinnedCount}
+        starredCount={starredCount}
         activeView={activeView}
         onViewChange={setActiveView}
-        
       />
-      <div className="dashboard-main">
-        <Header
-          user={user}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
-        <EmailAnalytics
-          importantEmail={importantEmail}
-          onImportantEmailClick={handleImportantEmailClick}
-        />
-        <div className="dashboard-content">
-          <div className="email-list-panel" ref={listPanelRef}>
-            <EmailList
-             emailsData={filteredEmails}
-            activeView={activeView}
-            searchQuery={searchQuery}
-            selectedEmailId={selectedEmailId}
-            onSelectEmail={handleSelectEmail}
-            onEmailUpdate={handleEmailUpdate}
-            loadingMore={inboxLoading && inboxEmailsRaw.length > 0}
-            />
+
+      <div className="dashboard-main" style={{ marginLeft: "240px" }}>
+        <Header user={user} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+
+        <div style={{ padding: "16px" }}>
+          <div style={{ marginBottom: "16px", borderRadius: "0.75rem", background: "#ffffff", padding: "16px", boxShadow: "0 8px 20px rgba(15, 23, 42, 0.05)" }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Inbox Overview</h2>
+            <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "6px" }}>
+              {filteredEmails.length} messages in {activeView === "inbox" ? "Inbox" : activeView}.
+            </p>
           </div>
-          <div className="email-preview-panel">
-            <EmailPreview
-              selectedEmail={selectedEmail}
-              onEmailUpdate={handleEmailUpdate}
-            />
+
+          <div style={{ display: "grid", gap: "16px", gridTemplateColumns: "repeat(12, 1fr)" }}>
+            <div style={{ gridColumn: "span 4" }}>
+              <div
+                ref={listPanelRef}
+                className="email-list-panel"
+                style={{
+                  overflowY: "auto",
+                  maxHeight: "calc(100vh - 240px)",
+                  borderRadius: "0.75rem",
+                  background: "#ffffff",
+                  boxShadow: "0 8px 20px rgba(15, 23, 42, 0.05)",
+                }}
+              >                <EmailList
+                  emailsData={filteredEmails}
+                  selectedEmailId={selectedEmailId}
+                  onSelectEmail={handleSelectEmail}
+                  onEmailUpdate={handleEmailUpdate}
+                  loadingMore={inboxLoading && inboxEmailsRaw.length > 0}
+                />
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "span 4" }}>
+              <div
+                className="email-preview-panel"
+                style={{
+                  overflowY: "auto",
+                  maxHeight: "calc(100vh - 240px)",
+                  borderRadius: "0.75rem",
+                  background: "#ffffff",
+                  boxShadow: "0 8px 20px rgba(15, 23, 42, 0.05)",
+                }}
+              >
+                <EmailPreview selectedEmail={selectedEmail} onEmailUpdate={handleEmailUpdate} />
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "span 4" }}>
+              <div
+                className="email-analytics-wrapper"
+                style={{
+                  overflowY: "auto",
+                  maxHeight: "calc(100vh - 240px)",
+                  borderRadius: "0.75rem",
+                  background: "#ffffff",
+                  boxShadow: "0 8px 20px rgba(15, 23, 42, 0.05)",
+                }}
+              >
+                <EmailAnalytics
+                  importantEmail={importantEmail}
+                  topSender={topSender}
+                  topDomain={topDomain}
+                  onImportantEmailClick={handleImportantEmailClick}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -104,7 +104,7 @@
 
 import { pinEmail, starEmail ,unpinEmail, unstarEmail } from "../../api/EmailApi";
 import toast from "react-hot-toast";
-function EmailList({ emailsData, onSelectEmail, onEmailUpdate, loadingMore = false }) {
+function EmailList({ emailsData, selectedEmailId, onSelectEmail, onEmailUpdate, loadingMore = false }) {
 
   const handlePin = async (email) => {
    try {
@@ -152,53 +152,62 @@ function EmailList({ emailsData, onSelectEmail, onEmailUpdate, loadingMore = fal
 
   return (
     <div className="email-list">
-
       {emailsData.map((email) => (
-
-        <div key={email.id} className="email-item">
-
-          <div onClick={() => onSelectEmail(email)}>
-
-            <h4>{email.subject}</h4>
-            <p>{email.from}</p>
-            <p>{email.snippet}</p>
-
+        <div
+          key={email.id}
+          className={`email-item ${email.unread ? "unread" : ""} ${selectedEmailId === email.id ? "selected" : ""}`}
+          onClick={() => onSelectEmail(email)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              onSelectEmail(email);
+            }
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.6rem" }}>
+            <div>
+              <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "#1e293b", margin: 0 }}>{email.from}</p>
+              <h4 style={{ fontSize: "0.9rem", color: "#0f172a", margin: "4px 0" }}>{email.subject}</h4>
+              <p style={{ fontSize: "0.8rem", color: "#64748b", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email.snippet}</p>
+            </div>
+            <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{email.date || "-"}</span>
           </div>
 
-          <div className="email-actions">
-
+          <div style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
             <button
+              style={{ border: "1px solid #e2e8f0", borderRadius: "0.375rem", padding: "0.22rem 0.45rem", fontSize: "0.75rem", cursor: "pointer" }}
               onClick={(e) => {
                 e.stopPropagation();
                 handlePin(email);
               }}
+              aria-label={email.pinned ? "Unpin email" : "Pin email"}
             >
-              📌
+              {email.pinned ? "📌" : "📍"}
             </button>
-
             <button
+              style={{ border: "1px solid #e2e8f0", borderRadius: "0.375rem", padding: "0.22rem 0.45rem", fontSize: "0.75rem", cursor: "pointer" }}
               onClick={(e) => {
                 e.stopPropagation();
                 handleStar(email);
               }}
+              aria-label={email.starred ? "Unstar email" : "Star email"}
             >
               {email.starred ? "⭐" : "☆"}
             </button>
-
+            {email.unread && (
+              <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#4f46e5" }}>Unread</span>
+            )}
           </div>
-
         </div>
-
       ))}
 
-      {/* One-line status while the next inbox page is fetching (infinite scroll). */}
       {loadingMore && (
         <div className="email-list-loader" role="status" aria-live="polite">
           <span className="email-list-loader-spinner" aria-hidden />
           <p className="email-list-loader-text">emails are loading</p>
         </div>
       )}
-
     </div>
   );
 }

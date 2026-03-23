@@ -28,6 +28,8 @@ function useEmails() {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debounceRef = useRef(null);
 
   const fetchEmailAnalytics = useCallback(async () => {
     const data = await getEmailAnalytics();
@@ -40,12 +42,12 @@ function useEmails() {
     return data;
   }, []);
 
-  const fetchEmails = useCallback(async (pageToken) => {
+  const fetchEmails = useCallback(async (pageToken, search) => {
     if (loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
     try {
-      const data = await fetchEmailsFromApi(pageToken || undefined);
+      const data = await fetchEmailsFromApi(pageToken || undefined, search || undefined);
       const batch = data.emails || [];
       const token = data.nextPageToken ?? null;
       setEmails((prev) => {
@@ -61,6 +63,14 @@ function useEmails() {
     }
   }, []);
 
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchEmails(null, term);
+    }, 500);
+  }, [fetchEmails]);
+
   return {
     analytics,
     importantEmail: analytics.importantEmail,
@@ -68,7 +78,9 @@ function useEmails() {
     emails,
     nextPageToken,
     loading,
-    fetchEmails
+    fetchEmails,
+    searchTerm,
+    handleSearch
   };
 }
 

@@ -10,8 +10,9 @@ const getInboxEmails = async (req, res) => {
     const accessToken = req.user.googleAccessToken;
     // Optional Gmail pagination cursor (query: ?pageToken=...)
     const pageToken = req.query.pageToken;
+    const search = req.query.search;
 
-    const { emails, nextPageToken } = await fetchInboxEmails(accessToken, pageToken);
+    const { emails, nextPageToken } = await fetchInboxEmails(accessToken, pageToken, search);
       
     res.json({
       success: true,

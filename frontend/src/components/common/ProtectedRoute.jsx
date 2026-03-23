@@ -1,16 +1,21 @@
 import { Navigate, Outlet } from "react-router-dom";
-
-// TODO: Replace this logic with GET /api/auth/me - fetch user session from backend
-const isAuthenticated = true;
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * Protects routes that require authentication.
  * Redirects to /login if user is not authenticated.
  */
 function ProtectedRoute() {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a proper loading component
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
   return <Outlet />;
 }
 

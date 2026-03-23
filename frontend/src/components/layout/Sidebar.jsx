@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * Sidebar navigation component.
@@ -14,9 +15,10 @@ function Sidebar({
   activeView,
    onViewChange = [] }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    // TODO: Call POST /api/auth/logout before navigating
+    logout();
     navigate("/login");
   };
 
@@ -33,13 +35,13 @@ function Sidebar({
               className={`sidebar-item ${isActive("inbox") ? "active" : ""}`}
               onClick={setActive("inbox")}
             >
-              Inbox ({inboxCount})
+              📥 Inbox ({inboxCount})
             </button>
           </li>
           <li>
             <button
               className={`sidebar-item ${isActive("starred") ? "active" : ""}`}
-              onClick={setActive("starred") }
+              onClick={setActive("starred")}
             >
               ⭐ Starred ({starredCount})
             </button>
@@ -49,7 +51,15 @@ function Sidebar({
               className={`sidebar-item ${isActive("pinned") ? "active" : ""}`}
               onClick={setActive("pinned")}
             >
-              📌Pinned ({pinnedCount})
+              📌 Pinned ({pinnedCount})
+            </button>
+          </li>
+          <li>
+            <button
+              className={`sidebar-item ${isActive("analytics") ? "active" : ""}`}
+              onClick={setActive("analytics")}
+            >
+              📊 Analytics
             </button>
           </li>
         </ul>
@@ -63,7 +73,7 @@ function Sidebar({
                   className={`sidebar-item domain-item ${isActive(domain) ? "active" : ""}`}
                   onClick={setActive(domain)}
                 >
-                  {domain} ({domainStats[domain]||0})
+                  {domain} ({domainStats[domain] || 0})
                 </button>
               </li>
             ))}
