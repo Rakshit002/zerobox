@@ -18,7 +18,18 @@ import { useAuth } from "../context/AuthContext";
  * Email details are now displayed in a separate route: /inbox/:id
  */
 function Inbox() {
-  const { user, loading: authLoading, refreshAuth } = useAuth();
+  const { user: authUser, loading: authLoading, refreshAuth } = useAuth();
+  
+  // ===== DEMO MODE START =====
+  const isDemo = localStorage.getItem("demoMode") === "true";
+  const demoUser = {
+    name: "Demo User",
+    email: "demo@example.com",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Demo"
+  };
+  const user = isDemo ? demoUser : authUser;
+  // ===== DEMO MODE END =====
+
   const {
     importantEmail,
     fetchEmailAnalytics,
@@ -86,6 +97,17 @@ useEffect(() => {
 
     try {
 
+      // ===== DEMO MODE START =====
+      if (isDemo) {
+        // In demo mode, skip pin/star API calls - demo emails have pre-set values
+        console.log("Demo mode: loading demo emails");
+        await loadInboxPage();
+        await fetchEmailAnalytics();
+        return;
+      }
+      // ===== DEMO MODE END =====
+
+      // ===== REAL MODE START =====
       // 1️⃣ Pinned / starred from MongoDB (used to decorate Gmail rows)
       const pinned = await getPinnedEmails();
       console.log("pinned email", pinned);
@@ -105,6 +127,7 @@ useEffect(() => {
       } catch (analyticsError) {
         console.error("Failed to load analytics", analyticsError);
       }
+      // ===== REAL MODE END =====
 
     } catch (error) {
       console.error("Failed to load emails", error);
@@ -114,7 +137,7 @@ useEffect(() => {
 
   bootstrapInbox();
 
-}, [fetchEmailAnalytics, loadInboxPage]);
+}, [fetchEmailAnalytics, loadInboxPage, isDemo]);
 
   // Infinite scroll: when user nears bottom of list panel, request next Gmail page.
   useEffect(() => {

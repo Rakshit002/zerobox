@@ -7,6 +7,13 @@ function Home() {
     navigate("/login");
   };
 
+  // ===== DEMO MODE START =====
+  const handleTryDemo = () => {
+    localStorage.setItem("demoMode", "true");
+    navigate("/inbox");
+  };
+  // ===== DEMO MODE END =====
+
   return (
     <div
       className="home-page"
@@ -121,7 +128,7 @@ function Home() {
             </div>
           </div>
 
-          <div style={{ marginTop: "1.75rem", textAlign: "center" }}>
+          <div style={{ marginTop: "1.75rem", textAlign: "center", display: "flex", gap: "1rem", justifyContent: "center" }}>
             <button
               onClick={handleLogin}
               style={{
@@ -137,6 +144,23 @@ function Home() {
             >
               Login with Google
             </button>
+            {/* ===== DEMO MODE START ===== */}
+            <button
+              onClick={handleTryDemo}
+              style={{
+                background: "#f8fafc",
+                color: "#4338ca",
+                border: "2px solid #4338ca",
+                borderRadius: "0.75rem",
+                padding: "0.8rem 1.4rem",
+                fontWeight: 700,
+                fontSize: "1rem",
+                cursor: "pointer",
+              }}
+            >
+              Try Demo
+            </button>
+            {/* ===== DEMO MODE END ===== */}
           </div>
         </section>
       </main>

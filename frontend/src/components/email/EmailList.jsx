@@ -109,44 +109,59 @@ import toast from "react-hot-toast";
 function EmailList({ emailsData, selectedEmailId, onEmailUpdate, loadingMore = false }) {
   const navigate = useNavigate();
 
+  // ===== DEMO MODE START =====
+  const isDemo = localStorage.getItem("demoMode") === "true";
+  // ===== DEMO MODE END =====
+
   const handlePin = async (email) => {
-   try {
+    try {
+      // ===== DEMO MODE START =====
+      if (isDemo) {
+        // In demo mode, only update UI state - no API call
+        onEmailUpdate(email.id, { pinned: !email.pinned });
+        toast.success(email.pinned ? "Email unpinned" : "Email pinned");
+        return;
+      }
+      // ===== DEMO MODE END =====
 
-    if (email.pinned) {
-
-      await unpinEmail(email.id);
-
-      onEmailUpdate(email.id, { pinned: false });
-         toast.success("Email unpinned succesfully");
-    } else {
-
-      await pinEmail(email.id);
-
-      onEmailUpdate(email.id, { pinned: true });
-       toast.success("Email pinned succesfully");
+      // ===== REAL MODE START =====
+      if (email.pinned) {
+        await unpinEmail(email.id);
+        onEmailUpdate(email.id, { pinned: false });
+        toast.success("Email unpinned succesfully");
+      } else {
+        await pinEmail(email.id);
+        onEmailUpdate(email.id, { pinned: true });
+        toast.success("Email pinned succesfully");
+      }
+      // ===== REAL MODE END =====
+    } catch (error) {
+      console.error("Pin toggle failed", error);
     }
-
-  } catch (error) {
-    console.error("Pin toggle failed", error);
-  }
   };
 
   const handleStar = async (email) => {
     try {
+      // ===== DEMO MODE START =====
+      if (isDemo) {
+        // In demo mode, only update UI state - no API call
+        onEmailUpdate(email.id, { starred: !email.starred });
+        toast.success(email.starred ? "Email unstarred" : "Email starred");
+        return;
+      }
+      // ===== DEMO MODE END =====
 
+      // ===== REAL MODE START =====
       if (email.starred) {
-
         await unstarEmail(email.id);
-
         onEmailUpdate(email.id, { starred: false });
         toast.success("Email unstarred succesfully");
       } else {
-
         await starEmail(email.id);
-
         onEmailUpdate(email.id, { starred: true });
         toast.success("Email starred succesfully");
       }
+      // ===== REAL MODE END =====
 
     } catch (error) {
       console.error("Star failed", error);

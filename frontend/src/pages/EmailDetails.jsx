@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getEmailById } from "../api/EmailApi";
+import { getDemoEmailById } from "../data/demoEmails";
 import { useAuth } from "../context/AuthContext";
 
 /**
@@ -18,8 +19,19 @@ function EmailDetails() {
     const fetchEmail = async () => {
       try {
         setLoading(true);
-        const data = await getEmailById(id);
-        setEmail(data.email);
+        // ===== DEMO MODE START =====
+        const isDemo = localStorage.getItem("demoMode") === "true";
+        let data;
+        if (isDemo) {
+          data = getDemoEmailById(id);
+        } else {
+          // ===== DEMO MODE END =====
+
+          // ===== REAL MODE START =====
+          data = await getEmailById(id);
+          // ===== REAL MODE END =====
+        }
+        setEmail(data?.email);
       } catch (error) {
         console.error("Failed to load email:", error);
       } finally {

@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { getEmailAnalytics, fetchEmails as fetchEmailsFromApi } from "../api/EmailApi";
+import { getDemoEmails, getDemoAnalytics } from "../data/demoEmails";
 
 /** Drop duplicate Gmail messages when merging pages (same id). */
 function dedupeEmailsById(list) {
@@ -32,6 +33,21 @@ function useEmails() {
   const debounceRef = useRef(null);
 
   const fetchEmailAnalytics = useCallback(async () => {
+    // ===== DEMO MODE START =====
+    const isDemo = localStorage.getItem("demoMode") === "true";
+    if (isDemo) {
+      const demoData = getDemoAnalytics();
+      setAnalytics({
+        unreadCount: demoData.unreadCount || 0,
+        topSender: demoData.topSender || "",
+        topDomain: demoData.topDomain || "",
+        importantEmail: demoData.importantEmail || null
+      });
+      return demoData;
+    }
+    // ===== DEMO MODE END =====
+
+    // ===== REAL MODE START =====
     const data = await getEmailAnalytics();
     setAnalytics({
       unreadCount: data.unreadCount || 0,
@@ -40,6 +56,7 @@ function useEmails() {
       importantEmail: data.importantEmail || null
     });
     return data;
+    // ===== REAL MODE END =====
   }, []);
 
   const fetchEmails = useCallback(async (pageToken, search) => {
@@ -47,7 +64,19 @@ function useEmails() {
     loadingRef.current = true;
     setLoading(true);
     try {
-      const data = await fetchEmailsFromApi(pageToken || undefined, search || undefined);
+      // ===== DEMO MODE START =====
+      const isDemo = localStorage.getItem("demoMode") === "true";
+      let data;
+      if (isDemo) {
+        data = getDemoEmails(pageToken || undefined, search || undefined);
+      } else {
+        // ===== DEMO MODE END =====
+
+        // ===== REAL MODE START =====
+        data = await fetchEmailsFromApi(pageToken || undefined, search || undefined);
+        // ===== REAL MODE END =====
+      }
+
       const batch = data.emails || [];
       const token = data.nextPageToken ?? null;
       setEmails((prev) => {
