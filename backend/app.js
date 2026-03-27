@@ -15,10 +15,17 @@ app.use(passport.initialize());
 
 
 
-app.use(cors({
-  origin: 'http://localhost:5173' // Allow requests from your frontend origin
-}));
+const allowedOrigins = process.env.FRONTEND_URL?.split(",") || [];
 
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS blocked"));
+    }
+  }
+}));
 
 
 

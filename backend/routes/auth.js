@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 import User from "../models/usermodel.js";
+const FRONTEND_URL = process.env.FRONTEND_URL.split(",")[0] || "http://localhost:5173";
 
 /**
  * STEP 1: Start Google Login
@@ -34,7 +35,7 @@ router.get(
     
 
     // Redirect to frontend dashboard
-    res.redirect(`http://localhost:5173/inbox?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/inbox?token=${token}`);
 
    
   }
