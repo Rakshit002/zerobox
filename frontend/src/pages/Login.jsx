@@ -17,7 +17,7 @@ function Login() {
   }, [isAuthenticated, loading, navigate]);
 
   const handleGoogleSignIn = () => {
-    const backendUrl = "https://zerobox.onrender.com/";
+    const backendUrl = "https://zerobox.onrender.com";
     window.location.href = `${backendUrl}/api/auth/google`;
   };
 
