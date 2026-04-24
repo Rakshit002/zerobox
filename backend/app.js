@@ -15,17 +15,32 @@ app.use(passport.initialize());
 
 
 
-const allowedOrigins = process.env.FRONTEND_URL?.split(",") || [];
+// Parse FRONTEND_URL environment variable into an array of allowed origins.
+// Expected format: "http://localhost:5173,https://zerobox-ashy.vercel.app"
+const rawFrontendUrls = process.env.FRONTEND_URL || "http://localhost:5173";
+const allowedOrigins = rawFrontendUrls
+  .split(",")
+  .map((u) => u && u.trim())
+  .filter(Boolean);
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS blocked"));
-    }
-  }
-}));
+// CORS configuration: validate incoming request origin against allowedOrigins.
+// - Allow requests with no origin (Postman, curl, server-to-server).
+// - Keep credentials enabled so cookies / auth headers can be used.
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Accept requests without an origin (server tools, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      // Accept exact origin matches only (prevents open CORS)
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      // Reject other origins
+      return callback(new Error("CORS blocked: origin not allowed"));
+    },
+    credentials: true,
+  })
+);
 
 
 

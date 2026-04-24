@@ -6,7 +6,7 @@ import User from "../models/usermodel.js";
 const getInboxEmails = async (req, res) => {
 
   try {
-    
+    console.log("Fetching inbox emails for user:", req.user.email); 
     const accessToken = req.user.googleAccessToken;
     // Optional Gmail pagination cursor (query: ?pageToken=...)
     const pageToken = req.query.pageToken;

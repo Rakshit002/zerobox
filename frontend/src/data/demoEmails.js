@@ -143,11 +143,75 @@ export const demoAnalytics = {
 };
 
 /**
+ * Convert HTML body to clean plain text (demo equivalent of backend extraction)
+ */
+function htmlToCleanText(html) {
+  if (!html) return "";
+  let text = html;
+  
+  // Remove HTML tags
+  text = text.replace(/<[^>]*>/g, "");
+  
+  // Decode HTML entities
+  text = text
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  // Clean up whitespace
+  text = text.replace(/\s+/g, " ").trim();
+  
+  return text;
+}
+
+/**
+ * Detect email category (demo equivalent)
+ */
+function detectCategory(subject, body, from) {
+  const lowerSubject = subject.toLowerCase();
+  const lowerBody = body.toLowerCase();
+
+  // Promotion
+  const promotionKeywords = ["save", "discount", "offer", "deal", "sale", "limited time", "exclusive"];
+  if (promotionKeywords.some(kw => lowerSubject.includes(kw))) return "promotion";
+
+  // Newsletter
+  if (lowerSubject.includes("newsletter") || from.includes("noreply")) return "newsletter";
+
+  // Updates
+  if (lowerSubject.includes("update") || lowerSubject.includes("notification")) return "updates";
+
+  return "personal";
+}
+
+/**
  * Get a single demo email by ID
  */
 export function getDemoEmailById(emailId) {
   const email = demoEmailsList.find((e) => e.id === emailId);
-  return email ? { email } : null;
+  if (!email) return null;
+
+  const cleanBody = htmlToCleanText(email.body);
+  const category = detectCategory(email.subject, cleanBody, email.from);
+  
+  // Format demo email to match new backend response structure
+  return {
+    email: {
+      id: email.id,
+      from: email.from,
+      subject: email.subject,
+      date: email.date,
+      preview: email.snippet,
+      cleanBody,
+      summary: email.snippet,
+      category,
+      contentType: "text/html",
+      quality: 75
+    }
+  };
 }
 
 /**

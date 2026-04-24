@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { extractEmail } from "../utils/emailExtractor.js";
 
 const extractDomain = (from) => {
 
@@ -77,6 +78,18 @@ const fetchInboxEmails = async (accessToken, pageToken, searchQuery) => {
 
   return { emails, nextPageToken };
 };
+/**
+ * Fetch full email by ID with clean body extraction
+ * Handles:
+ * - Multipart MIME structures
+ * - Base64URL decoding (Gmail format)
+ * - HTML sanitization and conversion to plain text
+ * - Summary generation
+ * 
+ * @param {string} accessToken - Gmail API access token
+ * @param {string} emailId - Gmail message ID
+ * @returns {object} Email with cleanBody and summary
+ */
 const fetchEmailById = async (accessToken, emailId) => {
 
   const auth = new google.auth.OAuth2();
@@ -98,40 +111,13 @@ const fetchEmailById = async (accessToken, emailId) => {
 
   const message = response.data;
 
-  const headers = message.payload.headers;
-
-  const getHeader = (name) =>
-    headers.find(h => h.name === name)?.value || "";
-
-  // extract email body
-  let body = "";
-
-  if (message.payload.parts) {
-
-    const part = message.payload.parts.find(
-      p => p.mimeType === "text/html" || p.mimeType === "text/plain"
-    );
-
-    if (part && part.body.data) {
-      body = Buffer.from(part.body.data, "base64").toString("utf8");
-    }
-
-  } else if (message.payload.body?.data) {
-
-    body = Buffer.from(message.payload.body.data, "base64").toString("utf8");
-
-  }
-
-  
-
-  return {
-    id: message.id,
-    from: getHeader("From"),
-    subject: getHeader("Subject"),
-    date: getHeader("Date"),
-    snippet: message.snippet,
-    body
-  };
+  // Use production-grade email extractor with:
+  // - DOM-based HTML parsing (cheerio)
+  // - Intelligent junk removal
+  // - Email categorization
+  // - Zero-width character cleaning
+  // - Quality scoring
+  return extractEmail(message);
 };
 
 const getEmailAnalyticsService = async (accessToken) => {

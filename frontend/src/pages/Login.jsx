@@ -17,7 +17,10 @@ function Login() {
   }, [isAuthenticated, loading, navigate]);
 
   const handleGoogleSignIn = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    const backendUrl = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : window.location.origin;
+    window.location.href = `${backendUrl}/api/auth/google`;
   };
 
   if (loading) {

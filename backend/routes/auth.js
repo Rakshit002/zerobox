@@ -4,8 +4,15 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 import User from "../models/usermodel.js";
-const FRONTEND_URL = process.env.FRONTEND_URL.split(",")[0] || "http://localhost:5173";
 
+// Parse FRONTEND_URL into an array of allowed frontend origins.
+// Example: "http://localhost:5173,https://zerobox-ashy.vercel.app"
+const FRONTEND_URLS = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((u) => u && u.trim())
+  .filter(Boolean);
+
+console.log("Using FRONTEND_URLS:", FRONTEND_URLS);
 /**
  * STEP 1: Start Google Login
  * URL: /api/auth/google
@@ -33,9 +40,23 @@ router.get(
       { expiresIn: "7d" }
     );
     
+    // Choose redirect base dynamically:
+    // 1) If the request includes an Origin header and it matches allowed frontends, use it.
+    // 2) Otherwise, prefer a production HTTPS URL from FRONTEND_URLS.
+    // 3) Fallback to the first configured URL (usually localhost in dev).
+    const reqOrigin = (req.headers.origin || req.headers.referer || "").split("?")[0];
+    let redirectBase = null;
 
-    // Redirect to frontend dashboard
-    res.redirect(`${FRONTEND_URL}/inbox?token=${token}`);
+    if (reqOrigin && FRONTEND_URLS.includes(reqOrigin)) {
+      redirectBase = reqOrigin;
+    } else {
+      // Prefer a secure https frontend when available
+      redirectBase = FRONTEND_URLS.find(u => u.startsWith("https://")) || FRONTEND_URLS[0];
+    }
+
+    const redirectUrl = `${redirectBase.replace(/\/$/, "")}/inbox?token=${token}`;
+    console.log("Login successful, redirecting to:", redirectUrl);
+    res.redirect(redirectUrl);
 
    
   }

@@ -101,9 +101,37 @@ function EmailDetails() {
         >
           {/* Email Header */}
           <div style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "1.5rem", marginBottom: "1.5rem" }}>
-            <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", margin: "0 0 1rem 0" }}>
-              {email.subject}
-            </h1>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1rem" }}>
+              <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                {email.subject}
+              </h1>
+              
+              {/* Category Badge */}
+              {email.category && (
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "0.25rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    backgroundColor: 
+                      email.category === "promotion" ? "#fef3c7" :
+                      email.category === "newsletter" ? "#dbeafe" :
+                      email.category === "updates" ? "#dbeafe" :
+                      "#e2e8f0",
+                    color:
+                      email.category === "promotion" ? "#92400e" :
+                      email.category === "newsletter" ? "#1e40af" :
+                      email.category === "updates" ? "#1e40af" :
+                      "#334155"
+                  }}
+                >
+                  {email.category}
+                </span>
+              )}
+            </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "2rem", flexWrap: "wrap" }}>
               <div>
@@ -121,16 +149,19 @@ function EmailDetails() {
             </div>
           </div>
 
-          {/* Email Body */}
+          {/* Email Body - Clean extracted text */}
           <div
             style={{
               fontSize: "1rem",
               lineHeight: "1.6",
               color: "#334155",
               wordBreak: "break-word",
+              whiteSpace: "pre-wrap",
+              fontFamily: "inherit"
             }}
-            dangerouslySetInnerHTML={{ __html: email.body }}
-          />
+          >
+            {email.cleanBody || email.body || "[No email content]"}
+          </div>
         </div>
       </div>
     </div>
