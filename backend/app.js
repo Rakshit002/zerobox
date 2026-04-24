@@ -22,6 +22,7 @@ const allowedOrigins = rawFrontendUrls
   .split(",")
   .map((u) => u && u.trim())
   .filter(Boolean);
+  console.log("Allowed CORS origins:", allowedOrigins);
 
 // CORS configuration: validate incoming request origin against allowedOrigins.
 // - Allow requests with no origin (Postman, curl, server-to-server).
