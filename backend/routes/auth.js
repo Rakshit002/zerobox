@@ -4,10 +4,8 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 import User from "../models/usermodel.js";
-const FRONTEND_URL = (process.env.FRONTEND_URL || "http://localhost:5173")
-  .split(",")
-  .map((u) => u && u.trim())
-  .filter(Boolean);
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:5173";
 console.log("Using FRONTEND_URL:", "->", FRONTEND_URL );
 /**
  * STEP 1: Start Google Login
