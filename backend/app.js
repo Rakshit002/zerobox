@@ -29,21 +29,16 @@ const allowedOrigins = rawFrontendUrls
 // - Keep credentials enabled so cookies / auth headers can be used.
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Accept requests without an origin (server tools, curl, Postman)
-      if (!origin) return callback(null, true);
-
-      // Accept exact origin matches only (prevents open CORS)
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-
-      // Reject other origins
-      return callback(new Error("CORS blocked: origin not allowed"));
-    },
+    origin: true,
     credentials: true,
+
+    
   })
+  
 );
+console.log("allowedorigin",allowedOrigins);
 
-
+console.log("BACKEND_URL =", process.env.BACKEND_URL);
 
 app.use("/api/auth", authRouter);
 app.use("/api/emails", emailRoutes);
