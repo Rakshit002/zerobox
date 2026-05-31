@@ -38,7 +38,8 @@ app.use(
 );
 console.log("allowedorigin",allowedOrigins);
 
-console.log("BACKEND_URL =", process.env.BACKEND_URL);
+
+console.log("bakend url", process.env.BACKEND_URL);
 
 app.use("/api/auth", authRouter);
 app.use("/api/emails", emailRoutes);
