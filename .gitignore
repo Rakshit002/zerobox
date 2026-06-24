@@ -27,3 +27,5 @@ dist-ssr
 #environment variable
 .env
 
+.md
+
